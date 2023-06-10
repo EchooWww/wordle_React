@@ -1,14 +1,19 @@
+import React from "react";
 import "./App.css";
-import { Person } from "./components/Person";
+import { Country, Person } from "./components/Person";
 function App() {
+  const getAge = (name: string): number => {
+    return 99;
+  };
   return (
     <div className="App">
       <Person
-        name={9}
+        name="Echo"
         email="echoooo1996@gmail.com"
         age={27}
-        isMarrie={false}
+        isMarried={false}
         friends={["Dapang", "ermao"]}
+        country={Country.China}
       />
     </div>
   );

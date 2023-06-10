@@ -966,3 +966,94 @@ export const Cat = () => {
 ```
 
 ## 9. Typescript and type safety
+
+### 9.1 Prop-types
+
+When we pass props to a component, we can use typescript to make sure the props are the right type.
+
+```bash
+npm install prop-types
+```
+
+```jsx
+import PropTypes from "prop-types";
+
+Person.propTypes = {
+  name: PropTypes.string,
+  email: PropTypes.string,
+  age: PropTypes.number,
+  isMarried: PropTypes.bool,
+  friends: PropTypes.arrayOf(PropTypes.string),
+};
+```
+
+When we're passing invalid props, we will get a warning in the console (instead of have our app crash), which will help us debug.
+
+### 9.2 Integrate Typescript into React
+
+Unlike prop-types, typescript will crash the app when we pass invalid props, so we need to make sure we pass the right props: that's why typescript is called "type safety".
+
+```bash
+npx create-react-app . --template typescript
+```
+
+In typescript, component files are .tsx files. In typescript, we should better define the type of variables. If not, we have an implicit type of `any`, which is not good.
+
+- For a variable, we can define the type like this:
+
+  ```tsx
+  const name: string = "John";
+  //or
+  {
+    props.friends.map((friend: string) => <h1>{friend}</h1>);
+  }
+  ```
+
+- While for objects like props, we need to define an interface:
+
+  ```tsx
+  interface Props {
+    name: string;
+    email: string;
+    age: number;
+    isMarried: boolean;
+    friends: string[];
+
+  }
+
+  export const Person = (props: Props) => {
+  ```
+
+- We can also define the type of the state:
+
+  ```tsx
+  import { useState } from "react";
+  const [name, setName] = useState<string>("");
+  ```
+
+- We can make some of the props optional by adding a question mark. without it, the props are required by default
+
+  ```tsx
+  country?: string;
+  ```
+
+- We can limit the possible values of a variable with enum
+
+  ```tsx
+  // this limited the possible values of country to USA, CANADA, UK
+  country: Country;
+
+  enum Country {
+    USA = "USA",
+    CANADA = "CANADA",
+    UK = "UK",
+  }
+  ```
+
+- And we can specify type of parameter and return value in a function like this:
+
+  ```tsx
+  const add = (a: number, b: number): number => {
+    return a + b;
+  };
+  ```
