@@ -442,3 +442,527 @@ const updateTask = (id) => {
   );
 };
 ```
+
+## 4. Component lifecycle & useEffect
+
+### 4.1 3 phases of component lifecycle:
+
+- Mounting: when the component is created
+- Updating: when the component is updated (props or state is changed)
+- Unmounting: when the component is removed
+
+### 4.2 useEffect
+
+The `useEffect()` function is the most important hook in React. It is used to handle the component lifecycle.
+
+```jsx
+// will be called when the component is mounted, and every time the component is updated
+useEffect(() => {
+  console.log("Component mounted");
+});
+
+// put an array as the second argument, the function will be called when the component is mounted, and when the value of the array is changed
+
+useEffect(() => {
+  console.log("Component mounted");
+}, []); // empty array means the function will only be called when the component is mounted
+
+//for unmounting, we can return a function within the useEffect callback function, and the function will be called when the component is unmounted
+
+useEffect(() => {
+  console.log("Component mounted");
+  return () => {
+    console.log("Component unmounted");
+  };
+}, [text]);
+```
+
+## 5. Fetch data from API in React
+
+### 5.1 The cat fact API
+
+Fetch data with the `fetch()` function
+
+```jsx
+fetch("https://catfact.ninja/fact")
+  .then((res) => res.json())
+  .then((data) => {
+    console.log(data);
+  });
+```
+
+A better way to fetch data is to use the `axios` library. It is a promise-based HTTP client for the browser and node.js. It is more powerful and easier to use than the `fetch()` function.
+
+```jsx
+import Axios from "axios";
+
+Axios.get("https://catfact.ninja/fact").then((res) => {
+  setCatFact(res.data.fact);
+});
+```
+
+But axios will run again every time the component is updated, so will the `fetch()` function. To prevent this, we can use the `useEffect()` function.
+
+```jsx
+useEffect(() => {
+  Axios.get("https://catfact.ninja/fact").then((res) => {
+    setCatFact(res.data.fact);
+  });
+}, []);
+```
+
+The strict mode in React will run the component twice, so we remove the strict mode in the index.js file for now.
+
+The whole example:
+
+```jsx
+function App() {
+  const [catFact, setCatFact] = useState("");
+  const fetchCatFact = () => {
+    Axios.get("https://catfact.ninja/fact").then((res) => {
+      setCatFact(res.data.fact);
+    });
+  };
+  useEffect(() => {
+    fetchCatFact();
+  }, []);
+
+  return (
+    <div className="App">
+      <button onClick={fetchCatFact}>Generate Cat Fact</button>
+      <p>{catFact}</p>
+    </div>
+  );
+}
+```
+
+### 5.2 A dynamiclly-changing API
+
+We can fetch data from an API based on user input. For example, we can fetch data from the `https://api.agify.io/?name=${name}` API, and the API will return the age of the person with the name `name`.
+
+```jsx
+function App() {
+  const [name, setName] = useState("");
+  const [age, setAge] = useState(0);
+  const fetchAge = () => {
+    Axios.get(`https://api.agify.io/?name=${name}`).then((res) => {
+      setAge(res.data.age);
+    });
+  };
+  return (
+    <div className="App">
+      <input
+        type="text"
+        onChange={(e) => {
+          setName(e.target.value);
+        }}
+      />
+      <button onClick={fetchAge}>Fetch Age</button>
+      <p>{age}</p>
+    </div>
+  );
+}
+```
+
+We can also fetch the data as objects
+
+```jsx
+const FetchData = () => {
+  Axios.get(`https://api.agify.io/?name=${name}`).then((res) => {
+    setAge(res.data);
+  });
+};
+
+// the question marks are used to prevent the error when the data is not fetched yet, it means only if the age is not null, then we can access the name, age and count properties
+      <h1>Name: {age?.name}</h1>
+      <h1>Predicted Age: {age?.age}</h1>
+      <h1>Count: {age?.count}</h1>
+```
+
+### 5.3 Fetch data from the excuse API
+
+- Pass the type of the excuse to the API, and the API will return an excuse of that type
+- Beware of the data type of the response, it can be an array or an object
+
+```jsx
+function App() {
+  const [excuse, setExcuse] = useState("");
+  const fetchData = (type) => {
+    Axios.get(`https://excuser-three.vercel.app/v1/excuse/${type}/`).then(
+      (res) => {
+        setExcuse(res.data[0]);
+      }
+    );
+  };
+  return (
+    <div className="App">
+      <h1>Generate An Excuse</h1>
+      <button onClick={() => fetchData("party")}>Party</button>
+      <button onClick={() => fetchData("family")}>Family</button>
+      <button onClick={() => fetchData("office")}>Office</button>
+      <p>Excuse: {excuse.excuse}</p>
+    </div>
+  );
+}
+```
+
+## 6. Routes in React
+
+In react, we only have one html file, so we need to use routes to navigate to different pages. We can use the `react-router-dom` library to create routes.
+
+### 6.1 the router library & router, routes and route
+
+```bash
+npm install react-router-dom
+```
+
+```jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+<Router>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/menu" element={<Menu />} />
+    <Route path="/contact" element={<Contact />} />
+  </Routes>
+</Router>;
+```
+
+### 6.2 Router for Navigation
+
+```jsx
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+<Router>
+  NAVBAR
+  <Link to="/">Home</Link>
+  <Link to="/menu">About</Link>
+  <Link to="/contact">Contact</Link>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/menu" element={<Menu />} />
+    <Route path="/contact" element={<Contact />} />
+  </Routes>
+</Router>;
+```
+
+or we can isolate the navbar into a component
+
+```jsx
+import { Link } from "react-router-dom";
+
+const Navbar = () => {
+  return (
+    <div>
+      <Link to="/">Home</Link>
+      <Link to="/menu">About</Link>
+      <Link to="/contact">Contact</Link>
+    </div>
+  );
+};
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+
+<Router>
+  <Navbar />
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/menu" element={<Menu />} />
+    <Route path="/contact" element={<Contact />} />
+  </Routes>
+</Router>;
+```
+
+## 7. State Management in React & Usecontext hook
+
+### 6.1 Prop drilling: passing props from parent to child to child to child, which is not efficient.
+
+```jsx
+const TopComponent = (state) => {
+  const [state, setState] = useState("");
+  return (
+    <div>
+      <MiddleComponent />
+    </div>
+  );
+};
+
+const MiddleComponent = (state) => {
+  return (
+    <div>
+      <BottomComponent />
+    </div>
+  );
+};
+
+const BottomComponent = (state) => {
+  return <div>{state}</div>;
+};
+```
+
+A more practical example: pass username from App to Profile to ChangeProfile: we are passing the `username` with props all the way down to the `ChangeProfile` component, which is not efficient.
+
+```jsx
+// in App.js
+<Route
+  path="/profile"
+  element={<Profile username={username} setUsername={setUsername} />}
+/>;
+
+// in Profile.js
+export const Profile = (props) => {
+  return (
+    <div>
+      <h1>PROFILE</h1>
+      <p>Username: {props.username}</p>
+      <ChangeProfile setUsername={props.setUsername} />
+    </div>
+  );
+};
+
+// in ChangeProfile.js
+export const ChangeProfile = (props) => {
+  const [newUsername, setNewUsername] = useState("");
+  return (
+    <div>
+      <input
+        onChange={(event) => {
+          setNewUsername(event.target.value);
+        }}
+      />
+      <button onClick={() => props.setUsername(newUsername)}>
+        Change Username
+      </button>
+    </div>
+  );
+};
+```
+
+### 6.2 Usecontext hook: a better way to pass props
+
+We can pass not only the varianle, also the function to change the variable
+
+- Import the hook
+
+```jsx
+import { createContext } from "react";
+export const UserContext = createContext();
+// add the <AppContext.Provider > tag outside the <Router> tag
+<UserContext.Provider value={{ username, setUsername }}>
+  <Router>
+    <Navbar />
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/menu" element={<Menu />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/profile" element={<Profile />} />
+    </Routes>
+  </Router>
+</UserContext.Provider>;
+
+// in Profile.js
+import { useContext } from "react";
+import { AppContext } from "../App";
+
+export const Profile = () => {
+  const { username } = useContext(AppContext);
+  return (
+    <div>
+      <h1>PROFILE</h1>
+      <p>Username: {username}</p>
+      <ChangeProfile />
+    </div>
+  );
+};
+
+// in ChangeProfile.js
+
+import { useContext, useState } from "react";
+import { AppContext } from "../App";
+export const ChangeProfile = () => {
+  const { setUsername } = useContext(AppContext);
+  const [newUsername, setNewUsername] = useState("");
+  return (
+    <div>
+      <input
+        onChange={(event) => {
+          setNewUsername(event.target.value);
+        }}
+      />
+      <button onClick={() => setUsername(newUsername)}>Change Username</button>
+    </div>
+  );
+};
+```
+
+We only pass props when it's necessary.
+
+## 7. Fetch data with React Query
+
+Fetch data with useEffect is not our best choice: it will fetch the data every time the component is rendered. We can use React Query to fetch data.
+
+### 7.1 Install React Query
+
+```bash
+npm install @tanstack/react-query
+```
+
+### 7.2 Fetch data with React Query
+
+```jsx
+// in App.js
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const client = new QueryClient();
+
+<QueryClientProvider client={client}>
+  <Router>
+    <Navbar />
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/menu" element={<Menu />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/profile" element={<Profile />} />
+    </Routes>
+  </Router>
+</QueryClientProvider>;
+
+// in Home.js (the component that needs to fetch data)
+import { useQuery } from "@tanstack/react-query";
+import { Axios } from "axios";
+
+export const Home = () => {
+  // useQuery takes two arguments: the first one is the key(which is the name of the query), the second one is the function that fetches and return the data
+  // isLoading is a boolean that tells us if the data is loading, it's built in the useQuery hook, we can use it to handle the loading state
+  // isError is a boolean that tells us if there is an error, it's built in the useQuery hook, we can use it to handle the error state
+  // refetch is a function that refetches the data when it's called, we can have the data refreshed with this without having a state to store the data
+
+  // we can also rename the data, isLoading, isError, refetch
+  const {
+    data: catData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(["cat"], () => {
+    return Axios.get("https://catfact.ninja/fact").then((res) => res.data);
+  });
+
+  if (isLoading) {
+    return <h1> Loading...</h1>;
+  }
+  return (
+    <h1>
+      Hi, <p>{catData?.fact}</p>
+    </h1>
+  );
+};
+```
+
+By default, the data will be refetched every time we go back to the page. We can change this behavior by adding `staleTime` to the useQuery hook.
+
+```jsx
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // disable refetch on window focus, this is by default true
+    },
+  },
+});
+```
+
+## 8. Forms in React
+
+Install the libraries
+
+```bash
+npm install react-hook-form yup @hookform/resolvers
+```
+
+Refer to Form.js for the code.
+
+## 9. Custom Hooks
+
+What is a hook? A function that starts with `use` and can only be called inside a component, which allows us to abstract the logic and reuse it.We can create our own custom hooks to reuse our code.
+
+### 9.1 Rules
+
+- It must start with `use` with lower case
+- It can only be called inside a component, and cannot be called inside a function, aka, the highest level of the component
+- It can call and be called by other hooks
+
+### 9.2 Our own useToggle hook
+
+```jsx
+// in useToggle.js
+import { useState } from "react";
+
+export const useToggle = (initialVal = false) => {
+  const [state, setState] = useState(initialVal);
+  const toggle = () => {
+    setValue(!value);
+  };
+  // export as an array, so that when you import it, you can name it whatever you want
+  // if you export it as an object, you can set the name by using const{state: isVisable, toggle: setisVisable} = useToggle(), but more complicated
+  return [state, toggle];
+};
+
+// in App.js
+
+import { useToggle } from "./useToggle";
+
+const [isVisable, setisVisable] = useToggle();
+
+function App() {
+  const [state, toggle] = useToggle();
+
+  return (
+    <div className="App">
+      <button onClick={toggle}>{state ? "Hide" : "Show"}</button>
+      {state && <h1>HI!</h1>}
+    </div>
+  );
+}
+```
+
+### 9.3 A good use case of custom hook
+
+We want to abstract Cat.js even more, so isolate the API fetch logic into a custom hook.
+
+```jsx
+// in useGetCat.js
+import { useQuery } from "@tanstack/react-query";
+import Axios from "axios";
+export const useGetCat = () => {
+  const {
+    data,
+    refetch,
+    isLoading: isCatLoading,
+    error,
+  } = useQuery(["cat"], async () => {
+    return Axios.get("https://catfact.ninja/fact").then((res) => res.data);
+  });
+
+  const refetchData = () => {
+    alert("data refetched!");
+    refetch();
+  };
+
+  return { data, refetchData, isCatLoading };
+};
+
+// in Cat.js
+import { useGetCat } from "../useGetCat";
+export const Cat = () => {
+  const { data, isCatLoading, refetchData } = useGetCat();
+  if (isCatLoading) return <h1>Loading...</h1>;
+  return (
+    <div>
+      <h1>{data?.fact}</h1>
+      <button onClick={refetchData}>Refetch</button>
+    </div>
+  );
+};
+```
+
+## 9. Typescript and type safety
