@@ -997,6 +997,12 @@ Unlike prop-types, typescript will crash the app when we pass invalid props, so 
 npx create-react-app . --template typescript
 ```
 
+We need to uninstall some @types libraries first (because they are imcompatible with the newest version of react-router-dom library)
+
+```bash
+npm uninstall @types/react @types/react-dom @types/react-router-dom
+```
+
 In typescript, component files are .tsx files. In typescript, we should better define the type of variables. If not, we have an implicit type of `any`, which is not good.
 
 - For a variable, we can define the type like this:
@@ -1057,3 +1063,13 @@ In typescript, component files are .tsx files. In typescript, we should better d
     return a + b;
   };
   ```
+
+## 10. Redux Toolkit
+
+Install the library
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+### 10.1 store.ts
